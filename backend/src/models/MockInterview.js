@@ -7,6 +7,8 @@ const MessageSchema = new Schema({
 }, { _id: false })
 
 const MockInterviewSchema = new Schema({
+  questions: [String],
+  currentIndex: { type: Number, default: 0 },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   role: { type: String, required: true }, // target job role
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
