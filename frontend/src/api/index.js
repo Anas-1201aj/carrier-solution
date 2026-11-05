@@ -61,6 +61,7 @@ export const skillApi = {
 // Mock interview endpoints
 export const interviewApi = {
   list: () => api.get('/interview'),
+  searchRoles: (q) => api.get('/interview/roles', { params: { q } }),   // ← add
   start: (data) => api.post('/interview/start', data),
   get: (id) => api.get(`/interview/${id}`),
   sendMessage: (id, content) => api.post(`/interview/${id}/message`, { content }),
