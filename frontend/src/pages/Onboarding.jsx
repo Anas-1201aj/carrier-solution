@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-import { Sparkles, Check } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
+import { Sparkles, Check, ArrowRight, ArrowLeft } from 'lucide-react'
 import { profileApi } from '../api/index.js'
-import { Button, Alert } from '../components/ui.jsx'
+import { Alert } from '../components/ui.jsx'
 
 const EDUCATION_LEVELS = ['High School', 'Undergraduate', 'Graduate', 'Bootcamp', 'Self-taught', 'Other']
 const DEGREES = ['Computer Science', 'Information Systems', 'Software Engineering', 'Data Science', 'Design / UX', 'Business', 'Mathematics', 'Other']
@@ -33,7 +32,7 @@ function MultiSelect({ options, value = [], onChange, limit }) {
     }
   }
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2.5">
       {options.map((opt) => {
         const label = typeof opt === 'object' ? opt.label : opt
         const val = typeof opt === 'object' ? opt.value : opt
@@ -43,13 +42,13 @@ function MultiSelect({ options, value = [], onChange, limit }) {
             key={val}
             type="button"
             onClick={() => toggle(val)}
-            className={`rounded-xl border px-3.5 py-2 text-sm transition ${
+            className={`group flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-sm transition-all duration-300 ${
               selected
-                ? 'border-indigo-400 bg-indigo-50 text-indigo-700 font-semibold'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50'
+                ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-300 font-medium shadow-[0_0_15px_-3px_rgba(99,102,241,0.3)]'
+                : 'border-white/10 bg-white/[.03] text-slate-400 hover:border-white/20 hover:bg-white/[.06] hover:text-slate-200'
             }`}
           >
-            {selected && <Check className="mr-1 inline size-3.5 text-indigo-500" />}
+            {selected && <Check className="size-3.5 text-indigo-400" />}
             {label}
           </button>
         )
@@ -60,7 +59,7 @@ function MultiSelect({ options, value = [], onChange, limit }) {
 
 function SingleSelect({ options, value, onChange }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="grid gap-2.5 sm:grid-cols-2">
       {options.map((opt) => {
         const label = typeof opt === 'object' ? opt.label : opt
         const val = typeof opt === 'object' ? opt.value : opt
@@ -70,13 +69,15 @@ function SingleSelect({ options, value, onChange }) {
             key={val}
             type="button"
             onClick={() => onChange(val)}
-            className={`rounded-xl border px-4 py-3 text-left text-sm transition ${
+            className={`group flex items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition-all duration-300 ${
               selected
-                ? 'border-indigo-400 bg-indigo-50 text-indigo-700 font-semibold'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-indigo-200'
+                ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-300 font-medium shadow-[0_0_15px_-3px_rgba(99,102,241,0.3)]'
+                : 'border-white/10 bg-white/[.03] text-slate-400 hover:border-white/20 hover:bg-white/[.06] hover:text-slate-200'
             }`}
           >
-            {selected && <Check className="mr-1.5 inline size-3.5 text-indigo-500" />}
+            <div className={`grid size-4 place-items-center rounded-full border ${selected ? 'border-indigo-400 bg-indigo-400' : 'border-slate-600'}`}>
+              {selected && <div className="size-1.5 rounded-full bg-[#06070f]" />}
+            </div>
             {label}
           </button>
         )
@@ -173,44 +174,84 @@ export default function Onboarding() {
   ][step]
 
   return (
-    <main className="min-h-screen bg-[#fbfcff] text-slate-900">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
-        <Link to="/" className="flex items-center gap-2.5 font-bold">
-          <span className="grid size-9 place-items-center rounded-xl bg-[#172554] text-white">
-            <Sparkles className="size-4" />
-          </span>
-          CareerPilot <span className="text-indigo-600">AI</span>
-        </Link>
-        <span className="text-sm text-slate-500">Step {step + 1} of {STEPS.length}</span>
+    <div className="relative min-h-screen bg-[#06070f] text-slate-100 font-['Inter'] antialiased selection:bg-indigo-500/30">
+      
+      {/* Background Effects matching Home/Register */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_40%,transparent_100%)]" />
+        <div className="absolute -top-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-indigo-600/30 blur-[100px]" />
+        <div className="absolute top-20 right-0 h-[30rem] w-[30rem] rounded-full bg-fuchsia-600/20 blur-[100px]" />
       </div>
 
-      <div className="mx-auto max-w-xl px-5 pb-14">
+      <style>{`
+        @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+        .animate-fade-up { animation: fadeUp .7s cubic-bezier(.2,.9,.3,1) both; }
+        
+        .btn-primary {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6 55%, #d946ef);
+          background-size: 200% auto;
+          transition: background-position .5s, transform .25s, box-shadow .3s;
+          box-shadow: 0 12px 30px -10px rgba(139,92,246,.6);
+        }
+        .btn-primary:hover:not(:disabled) {
+          background-position: right center;
+          transform: translateY(-2px);
+          box-shadow: 0 18px 40px -12px rgba(217,70,239,.7);
+        }
+        .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+        .btn-secondary {
+          background: rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.1);
+          transition: all .25s;
+        }
+        .btn-secondary:hover:not(:disabled) {
+          background: rgba(255,255,255,.08);
+          border-color: rgba(255,255,255,.2);
+        }
+      `}</style>
+
+      <div className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-5 py-6 animate-fade-up">
+        <Link to="/" className="group flex items-center gap-2.5 font-bold text-white">
+          <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/40 transition-transform duration-500 group-hover:rotate-[10deg]">
+            <Sparkles className="size-4" />
+          </span>
+          <span className="text-lg font-extrabold tracking-tight">
+            CareerPilot <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">AI</span>
+          </span>
+        </Link>
+        <span className="text-sm font-medium text-slate-400">
+          Step <span className="text-indigo-400">{step + 1}</span> of {STEPS.length}
+        </span>
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-xl px-5 pb-14">
         {/* Progress bar */}
-        <div className="mb-10 flex gap-2">
+        <div className="animate-fade-up mb-10 flex gap-2">
           {STEPS.map((_, i) => (
-            <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200">
-              <div className={`h-full rounded-full bg-indigo-600 transition-all ${i < step ? 'w-full' : i === step ? 'w-3/4' : 'w-0'}`} />
+            <div key={i} className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+              <div className={`h-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 transition-all duration-500 ease-out ${i < step ? 'w-full' : i === step ? 'w-1/2' : 'w-0'}`} />
             </div>
           ))}
         </div>
 
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600">{STEPS[step].eyebrow}</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{STEPS[step].title}</h1>
-        <p className="mt-3 text-sm leading-6 text-slate-500">Choose the options that feel closest. You can refine these later.</p>
+        <p className="animate-fade-up text-xs font-bold uppercase tracking-[.25em] text-indigo-400">{STEPS[step].eyebrow}</p>
+        <h1 className="animate-fade-up mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">{STEPS[step].title}</h1>
+        <p className="animate-fade-up mt-3 text-sm text-slate-400">Choose the options that feel closest. You can refine these later.</p>
 
-        <div className="mt-8 flex flex-col gap-6">
+        <div className="mt-8 flex flex-col gap-8 animate-fade-up">
           {step === 0 && (
             <>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Education level</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Education level</p>
                 <SingleSelect options={EDUCATION_LEVELS} value={form.educationLevel} onChange={set('educationLevel')} />
               </div>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Degree or field</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Degree or field</p>
                 <SingleSelect options={DEGREES} value={form.degree} onChange={set('degree')} />
               </div>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Expected graduation year</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Expected graduation year</p>
                 <SingleSelect options={GRAD_YEARS} value={form.graduationYear} onChange={set('graduationYear')} />
               </div>
             </>
@@ -219,15 +260,15 @@ export default function Onboarding() {
           {step === 1 && (
             <>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Your experience level</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Your experience level</p>
                 <SingleSelect options={EXPERIENCE_LEVELS} value={form.experienceLevel} onChange={set('experienceLevel')} />
               </div>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Technical skills you already have <span className="text-slate-400 font-normal">(select all that apply)</span></p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Technical skills you already have <span className="text-slate-500 font-normal text-xs">(select all that apply)</span></p>
                 <MultiSelect options={SKILLS} value={form.technicalSkills} onChange={set('technicalSkills')} />
               </div>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Areas of interest</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Areas of interest</p>
                 <MultiSelect options={INTERESTS} value={form.interests} onChange={set('interests')} />
               </div>
             </>
@@ -236,21 +277,21 @@ export default function Onboarding() {
           {step === 2 && (
             <>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Target roles <span className="text-slate-400 font-normal">(up to 3)</span></p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Target roles <span className="text-slate-500 font-normal text-xs">(up to 3)</span></p>
                 <MultiSelect options={TARGET_ROLES} value={form.targetRoles} onChange={set('targetRoles')} limit={3} />
               </div>
               <div>
-                <p className="mb-2 text-sm font-semibold text-slate-700">Skills you want to learn</p>
+                <p className="mb-3 text-sm font-semibold text-slate-300">Skills you want to learn</p>
                 <MultiSelect options={SKILLS} value={form.skillsToLearn} onChange={set('skillsToLearn')} />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-semibold text-slate-700">Career goal (optional)</label>
+                <label className="mb-2 block text-sm font-semibold text-slate-300">Career goal (optional)</label>
                 <textarea
                   value={form.careerGoals}
                   onChange={(e) => set('careerGoals')(e.target.value)}
                   placeholder="e.g. Land a junior frontend developer role at a product company within 12 months."
                   rows={3}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
+                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[.03] px-4 py-3 text-sm text-slate-200 outline-none placeholder:text-slate-500 transition-all focus:border-indigo-500/50 focus:bg-indigo-500/[.05] focus:ring-4 focus:ring-indigo-500/10"
                 />
               </div>
             </>
@@ -258,31 +299,46 @@ export default function Onboarding() {
 
           {step === 3 && (
             <div>
-              <p className="mb-2 text-sm font-semibold text-slate-700">How many hours per week can you dedicate to learning?</p>
+              <p className="mb-3 text-sm font-semibold text-slate-300">How many hours per week can you dedicate to learning?</p>
               <SingleSelect options={WEEKLY_TIMES} value={form.weeklyLearningTime} onChange={set('weeklyLearningTime')} />
             </div>
           )}
 
           {error && <Alert type="error">{error}</Alert>}
 
-          <div className="flex gap-3">
+          <div className="mt-2 flex gap-3">
             {step > 0 && (
-              <Button variant="secondary" onClick={() => setStep(step - 1)} disabled={saving}>
-                Back
-              </Button>
+              <button 
+                onClick={() => setStep(step - 1)} 
+                disabled={saving}
+                className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-slate-300"
+              >
+                <ArrowLeft className="size-4" /> Back
+              </button>
             )}
+            
             {step < STEPS.length - 1 ? (
-              <Button onClick={() => saveStep(step + 1)} loading={saving} disabled={!canAdvance} className="flex-1">
-                Continue
-              </Button>
+              <button 
+                onClick={() => saveStep(step + 1)} 
+                disabled={saving || !canAdvance} 
+                className="btn-primary group flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white"
+              >
+                {saving ? 'Saving...' : 'Continue'}
+                {!saving && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
+              </button>
             ) : (
-              <Button onClick={finish} loading={saving} disabled={!canAdvance} className="flex-1">
-                Finish my profile →
-              </Button>
+              <button 
+                onClick={finish} 
+                disabled={saving || !canAdvance} 
+                className="btn-primary group flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white"
+              >
+                {saving ? 'Saving...' : 'Finish my profile'}
+                {!saving && <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />}
+              </button>
             )}
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

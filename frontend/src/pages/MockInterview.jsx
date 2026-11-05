@@ -1,3 +1,84 @@
+import { Search } from 'lucide-react' // add to the lucide import
+
+function RoleSearch({ value, onSelect }) {
+  const [query, setQuery] = useState(value || '')
+  const [results, setResults] = useState([])
+  const [open, setOpen] = useState(false)
+  const [searching, setSearching] = useState(false)
+  const wrapRef = useRef()
+
+  // debounced search
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 2 || q === value) { setResults([]); return }
+    let cancelled = false
+    setSearching(true)
+    const t = setTimeout(async () => {
+      try {
+        const { data } = await interviewApi.searchRoles(q)
+        if (!cancelled) { setResults(data.roles || []); setOpen(true) }
+      } catch {
+        if (!cancelled) setResults([])
+      } finally {
+        if (!cancelled) setSearching(false)
+      }
+    }, 400)
+    return () => { cancelled = true; clearTimeout(t) }
+  }, [query, value])
+
+  // close on outside click
+  useEffect(() => {
+    const h = (e) => !wrapRef.current?.contains(e.target) && setOpen(false)
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  function pick(role) {
+    setQuery(role)
+    onSelect(role)
+    setOpen(false)
+  }
+
+  const typed = query.trim()
+  const showCustom = typed.length >= 2 && !results.some((r) => r.toLowerCase() === typed.toLowerCase())
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <label className="text-sm font-semibold text-slate-700 block mb-1.5">Target role</label>
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+        <input
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); onSelect('') }}  // clear selection until they pick
+          onFocus={() => results.length && setOpen(true)}
+          placeholder="Search roles, e.g. Data Analyst, DevOps Engineer…"
+          className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+        />
+      </div>
+      {open && (results.length > 0 || showCustom || searching) && (
+        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+          {searching && <li className="px-4 py-2.5 text-xs text-slate-400">Searching…</li>}
+          {results.map((r) => (
+            <li key={r}>
+              <button type="button" onClick={() => pick(r)} className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-indigo-50">
+                {r}
+              </button>
+            </li>
+          ))}
+          {showCustom && (
+            <li>
+              <button type="button" onClick={() => pick(typed)} className="w-full border-t border-slate-100 px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50">
+                Use “{typed}”
+              </button>
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+
 import { useState, useEffect, useRef } from 'react'
 import { Brain, Send, CheckCircle, RotateCcw, Trophy, Star, AlertCircle } from 'lucide-react'
 import { interviewApi } from '../api/index.js'
@@ -64,29 +145,26 @@ function FeedbackCard({ feedback }) {
 }
 
 function InterviewSetup({ onStart, starting, error }) {
-  const [role, setRole] = useState('Frontend Developer')
+  const [role, setRole] = useState('')   // no hard-coded default
   const [type, setType] = useState('mixed')
   const [difficulty, setDifficulty] = useState('medium')
 
   return (
     <Card className="space-y-4">
       <h2 className="text-base font-semibold text-slate-900">Set up your interview</h2>
-      <div>
-        <label className="text-sm font-semibold text-slate-700 block mb-1.5">Target role</label>
-        <input
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          placeholder="e.g. Frontend Developer"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-        />
-      </div>
+      <RoleSearch value={role} onSelect={setRole} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Select label="Interview type" id="type" value={type} onChange={(e) => setType(e.target.value)} options={TYPES} />
         <Select label="Difficulty" id="diff" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} options={DIFFICULTIES} />
       </div>
       {error && <Alert type="error">{error}</Alert>}
-      <Button onClick={() => onStart({ role, interviewType: type, difficulty })} loading={starting} className="w-full">
-        Start interview
+      <Button
+        onClick={() => onStart({ role, interviewType: type, difficulty })}
+        loading={starting}
+        disabled={!role}
+        className="w-full"
+      >
+        {starting ? 'Generating questions…' : 'Start interview'}
       </Button>
     </Card>
   )
