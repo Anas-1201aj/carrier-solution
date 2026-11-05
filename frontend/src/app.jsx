@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import './index.css'
+import {ThemeProvider} from './context/ThemeContext.jsx'
 
 // Public pages
 import Home from './pages/Home.jsx'
@@ -71,10 +72,12 @@ function App() {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ThemeProvider>
     <BrowserRouter>
       <AuthProvider>
         <App />
       </AuthProvider>
     </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>
 )
